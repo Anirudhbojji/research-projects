@@ -1,17 +1,34 @@
 // The database keeps its original name so libraries made before the rename still open.
 const NAME = 'fathom';
-const VERSION = 1;
+const VERSION = 2; // v2: item ids are `${feedId}:${hash}` (see lib/ingest.js)
 let dbp;
 
 function open() {
   return (dbp ??= new Promise((res, rej) => {
     const r = indexedDB.open(NAME, VERSION);
-    r.onupgradeneeded = () => {
+    r.onupgradeneeded = (ev) => {
       const d = r.result;
-      d.createObjectStore('feeds', { keyPath: 'id' });
-      const items = d.createObjectStore('items', { keyPath: 'id' });
-      items.createIndex('published', 'published');
-      items.createIndex('feedId', 'feedId');
+      if (ev.oldVersion < 1) {
+        d.createObjectStore('feeds', { keyPath: 'id' });
+        const items = d.createObjectStore('items', { keyPath: 'id' });
+        items.createIndex('published', 'published');
+        items.createIndex('feedId', 'feedId');
+      }
+      if (ev.oldVersion >= 1 && ev.oldVersion < 2) {
+        // Item ids gained their feed id as a prefix. Re-key every row in place so nothing
+        // is downloaded again or shown as unread. Rows that already carry a prefix are skipped.
+        const items = r.transaction.objectStore('items');
+        items.openCursor().onsuccess = (e) => {
+          const c = e.target.result;
+          if (!c) return;
+          const v = c.value;
+          if (!String(v.id).includes(':')) {
+            c.delete();
+            items.put({ ...v, id: `${v.feedId}:${v.id}` });
+          }
+          c.continue();
+        };
+      }
     };
     r.onsuccess = () => res(r.result);
     r.onerror = () => rej(r.error);

@@ -1,5 +1,5 @@
 import * as db from './lib/db.js';
-import { discover } from './lib/feed.js';
+import { discover, autoDiscoveryUrl } from './lib/feed.js';
 import { followFeed, findFollowed, hasHosts, ensureHosts, refreshFeedNow, openApp } from './lib/follow.js';
 import { hydrateIcons } from './lib/icons.js';
 import { $, esc, hostOf, hueFor, timeAgo } from './lib/util.js';
@@ -45,6 +45,12 @@ const note = (html) => { stateEl.innerHTML = `<p class="note">${html}</p>`; };
 const skeleton = () => { stateEl.innerHTML = '<div class="skel" aria-label="Looking for feeds"><i></i><i></i></div>'; };
 
 /* ---------- finding feeds ---------- */
+const SKIP_NOTE = {
+  scheme: 'Vangmayam can only follow websites. Open a site, YouTube channel or subreddit, then come back.',
+  private: 'Vangmayam does not read local or private pages on its own. To follow one, paste its address below.',
+  sensitive: 'This address looks like a sign-in, reset or one-time link, so Vangmayam did not open it again. Paste the site\u2019s address below to follow it.',
+};
+
 async function getTarget() {
   if (P.pinned) return P.pinned;
   const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
@@ -64,16 +70,24 @@ async function detect(force = false) {
     P.lastUrl = '';
     return;
   }
-  if (!t.raw && !/^https?:/i.test(t.url)) {
-    setSite({ title: t.title || 'This page' });
-    note('Vangmayam can only follow websites. Open a site, YouTube channel or subreddit, then come back.');
-    P.lastUrl = '';
-    return;
+  // An address the person typed or chose is used as given. A tab's address is only re-requested
+  // once it is public http(s), stripped of its query and fragment, and not a one-time link.
+  let url = t.url;
+  if (!t.raw) {
+    const clean = autoDiscoveryUrl(t.url);
+    if (clean.skip) {
+      setSite({ title: t.title || 'This page', host: clean.skip === 'scheme' ? '' : hostOf(t.url) });
+      note(SKIP_NOTE[clean.skip]);
+      P.lastUrl = '';
+      P.found = [];
+      return;
+    }
+    url = clean.url;
   }
-  if (!force && t.url === P.lastUrl && P.found.length) return;
-  P.lastUrl = t.url;
+  if (!force && url === P.lastUrl && P.found.length) return;
+  P.lastUrl = url;
 
-  const host = t.raw ? '' : hostOf(t.url);
+  const host = t.raw ? '' : hostOf(url);
   setSite({ title: t.title || host, host, favicon: t.favicon });
 
   if (!(await hasHosts())) {
@@ -85,7 +99,7 @@ async function detect(force = false) {
 
   skeleton();
   try {
-    const found = await discover(t.url);
+    const found = await discover(url);
     if (my !== P.token) return;
     P.found = found;
     await renderFound();
@@ -184,7 +198,7 @@ async function takePending() {
   const { pendingFollow } = await chrome.storage.session.get('pendingFollow');
   if (pendingFollow && Date.now() - pendingFollow.t < 30000) {
     await chrome.storage.session.remove('pendingFollow');
-    P.pinned = { url: pendingFollow.url, title: '', favicon: '' };
+    P.pinned = { url: pendingFollow.url, title: hostOf(pendingFollow.url), favicon: '', raw: true };
     detect(true);
     return true;
   }

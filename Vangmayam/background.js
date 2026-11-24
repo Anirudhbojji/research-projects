@@ -1,5 +1,5 @@
 import * as db from './lib/db.js';
-import { fetchText, looksLikeFeed, probeUrls, ytFeed } from './lib/feed.js';
+import { fetchText, looksLikeFeed, probeUrls, ytFeed, originOf } from './lib/feed.js';
 import { getSettings } from './lib/settings.js';
 import { seedIfNeeded } from './lib/catalog.js';
 import { hostOf, mutedMatcher } from './lib/util.js';
@@ -100,7 +100,7 @@ const pageRemote = async (html, url) => (await offscreen({ type: 'extract-page',
 
 /** Read a page that has no feed: its article list becomes the items. */
 async function fetchPage(feed, url) {
-  const { text, url: finalUrl } = await fetchText(url);
+  const { text, url: finalUrl } = await fetchText(url, { trustedOrigin: originOf(feed.url) });
   const parsed = await pageRemote(text, finalUrl);
   return { url, parsed };
 }
@@ -109,7 +109,8 @@ async function fetchPage(feed, url) {
 async function resolveFeed(feed) {
   const site = feed.site || feed.siteUrl;
   if (!site) throw new Error('No feed found.');
-  const page = await fetchText(site);
+  const trustedOrigin = originOf(feed.url);
+  const page = await fetchText(site, { trustedOrigin });
   if (looksLikeFeed(page.text)) return { url: page.url, parsed: await parseRemote(page.text, page.url) };
 
   const candidates = [];
@@ -121,7 +122,7 @@ async function resolveFeed(feed) {
 
   for (const c of [...new Set(candidates)].slice(0, 16)) {
     try {
-      const r = await fetchText(c, { timeout: 8000 });
+      const r = await fetchText(c, { timeout: 8000, trustedOrigin });
       if (looksLikeFeed(r.text)) return { url: r.url, parsed: await parseRemote(r.text, r.url) };
     } catch { /* try the next one */ }
   }
@@ -136,9 +137,11 @@ async function fetchParsed(feed) {
   }
   try {
     if (feed.discover) throw new Error('needs lookup');
-    const { text, url } = await fetchText(feed.url);
+    const { text, url } = await fetchText(feed.url, { trustedOrigin: originOf(feed.url) });
     if (!looksLikeFeed(text)) throw new Error('That address is not a feed.');
-    return { url, parsed: await parseRemote(text, url) };
+    // A redirect within the site becomes the stored address. One that leaves the site is followed
+    // each time but not written down, so a hijacked or one-off redirect cannot repoint the source.
+    return { url: originOf(url) === originOf(feed.url) ? url : feed.url, parsed: await parseRemote(text, url) };
   } catch (e) {
     if (!(feed.site || feed.siteUrl)) throw e;
     try {

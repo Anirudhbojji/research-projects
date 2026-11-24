@@ -1,5 +1,5 @@
 import * as db from './lib/db.js';
-import { discover, fetchText } from './lib/feed.js';
+import { discover, fetchText, normalizeInput, isPrivateHost } from './lib/feed.js';
 import { extract } from './lib/readable.js';
 import { sanitize } from './lib/sanitize.js';
 import * as ai from './lib/ai.js';
@@ -603,23 +603,34 @@ async function followChecked() {
 }
 
 /* ---------- OPML ---------- */
+/** An OPML feed address Vangmayam will store: http(s) on a public host, normalised; '' otherwise. */
+function opmlUrl(raw) {
+  if (!raw || !/^https?:\/\//i.test(raw.trim())) return '';
+  try {
+    const url = normalizeInput(raw);
+    return isPrivateHost(new URL(url).hostname) ? '' : url;
+  } catch { return ''; }
+}
+
 async function importOpml(file) {
   const doc = new DOMParser().parseFromString(await file.text(), 'text/xml');
   const outlines = [...doc.querySelectorAll('outline[xmlUrl], outline[xmlurl]')];
   if (!outlines.length) { toast('No feeds found in that file'); return; }
-  let added = 0;
+  let added = 0, skipped = 0;
   for (const o of outlines) {
-    const url = o.getAttribute('xmlUrl') || o.getAttribute('xmlurl');
-    if (!url) continue;
+    // A file can say anything. Only http(s) addresses on public hosts become sources; a local
+    // bridge is added by typing its address, so each one is a deliberate choice.
+    const url = opmlUrl(o.getAttribute('xmlUrl') || o.getAttribute('xmlurl'));
+    if (!url) { skipped++; continue; }
     const id = hash(url);
     if (await db.get('feeds', id)) continue;
-    const title = o.getAttribute('title') || o.getAttribute('text') || hostOf(url);
+    const title = (o.getAttribute('title') || o.getAttribute('text') || hostOf(url)).slice(0, 200);
     const p = o.parentElement;
-    const folder = p && p.localName === 'outline' ? p.getAttribute('title') || p.getAttribute('text') || '' : '';
-    await db.put('feeds', { id, url, title, siteUrl: o.getAttribute('htmlUrl') || '', hue: hueFor(title), folder, added: Date.now(), lastFetched: 0, error: null });
+    const folder = p && p.localName === 'outline' ? (p.getAttribute('title') || p.getAttribute('text') || '').slice(0, 100) : '';
+    await db.put('feeds', { id, url, title, siteUrl: httpUrl(o.getAttribute('htmlUrl') || ''), hue: hueFor(title), folder, added: Date.now(), lastFetched: 0, error: null });
     added++;
   }
-  toast(`Imported ${added} of ${outlines.length} sources`);
+  toast(`Imported ${added} of ${outlines.length} sources${skipped ? `, ${skipped} skipped (not web addresses)` : ''}`);
   await reload();
   await chrome.runtime.sendMessage({ type: 'refresh' }).catch(() => {});
   await reload();

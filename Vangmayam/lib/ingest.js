@@ -26,7 +26,9 @@ export function buildItems(feed, parsed, { now, first, known, isMuted, retention
     .map(({ it, dated, published }, i) => {
       const muted = isMuted(`${it.title} ${it.summary}`);
       return {
-        id: hash(`${feed.id}|${it.guid || it.link || it.title}`),
+        // The feed id is a prefix of every item id, so one feed can never write over another feed's rows,
+        // whatever guid it publishes. The hashed part is unchanged so older libraries re-key in place.
+        id: `${feed.id}:${hash(`${feed.id}|${it.guid || it.link || it.title}`)}`,
         feedId: feed.id,
         title: it.title || '(untitled)',
         link: it.link,
