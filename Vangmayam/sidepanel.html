@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Add to Vangmayam</title>
+  <link rel="stylesheet" href="base.css">
+  <link rel="stylesheet" href="sidepanel.css">
+</head>
+<body>
+<main id="panel">
+  <header class="p-head">
+    <h1 class="mark">vangmayam</h1>
+    <button id="open-app" class="pill" type="button"><span data-icon="window"></span>Open Vangmayam</button>
+  </header>
+
+  <section class="site" id="site" aria-live="polite">
+    <div class="site-icon" id="site-icon" aria-hidden="true"></div>
+    <div class="site-text">
+      <p class="site-title" id="site-title">Looking at this page…</p>
+      <p class="site-host" id="site-host"></p>
+    </div>
+  </section>
+
+  <section id="state" class="state" aria-live="polite"></section>
+
+  <form id="manual" class="manual" autocomplete="off">
+    <label for="manual-input">Follow something else</label>
+    <div class="row">
+      <input id="manual-input" type="text" placeholder="example.com, @channel or r/subreddit" spellcheck="false">
+      <button class="pill" type="submit">Look up</button>
+    </div>
+  </form>
+
+  <section class="recent" id="recent" hidden>
+    <h2>Recently followed</h2>
+    <ul id="recent-list"></ul>
+  </section>
+</main>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<script type="module" src="sidepanel.js"></script>
+</body>
+</html>

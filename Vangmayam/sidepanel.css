@@ -1,0 +1,57 @@
+#panel { min-height: 100%; display: flex; flex-direction: column; padding: 0 16px 28px; gap: 18px; }
+.p-head { display: flex; align-items: center; justify-content: space-between; padding-top: 16px; }
+
+/* current page */
+.site { display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 16px; background: var(--raised); border: 1px solid var(--line); }
+.site-icon {
+  --h: 250; flex: none; width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; overflow: hidden;
+  font: 650 18px/1 var(--serif); color: oklch(.3 .08 var(--h)); background: oklch(.9 .06 var(--h));
+}
+@media (prefers-color-scheme: dark) { .site-icon { color: oklch(.92 .06 var(--h)); background: oklch(.38 .08 var(--h)); } }
+.site-icon img { width: 24px; height: 24px; }
+.site-text { min-width: 0; }
+.site-title { margin: 0; font: 650 15px/1.3 var(--serif); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.site-host { margin: 2px 0 0; font-size: 12.5px; color: var(--ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.state { display: grid; gap: 12px; }
+.note { margin: 0; color: var(--ink-2); text-wrap: pretty; }
+.note b { color: var(--ink); }
+.state .pill { justify-self: start; }
+
+/* loading placeholder */
+.skel { display: grid; gap: 10px; }
+.skel i { display: block; height: 62px; border-radius: 14px; background: linear-gradient(100deg, var(--hover) 30%, color-mix(in oklab, var(--ink) 11%, transparent) 50%, var(--hover) 70%); background-size: 220% 100%; animation: shimmer 1.3s linear infinite; }
+@keyframes shimmer { from { background-position: 120% 0; } to { background-position: -120% 0; } }
+
+/* feed candidates */
+.cands { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.cand { --h: 250; position: relative; display: grid; grid-template-columns: 3px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 12px 12px 14px; border-radius: 16px; background: var(--raised); border: 1px solid var(--line); }
+.cand::before { content: ''; grid-column: 1; grid-row: 1; align-self: stretch; border-radius: 3px; background: oklch(var(--src-l) var(--src-c) var(--h)); }
+.cand-main { grid-column: 2; min-width: 0; }
+.cand b { display: block; font: 650 15px/1.3 var(--serif); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cand small { display: block; margin-top: 1px; color: var(--ink-3); font-size: 12.5px; }
+.cand .pill { grid-column: 3; height: 34px; }
+.cand .pill.done { background: transparent; color: var(--ink-2); }
+.peek { grid-column: 2 / -1; list-style: none; margin: 4px 0 0; padding: 8px 0 0; border-top: 1px solid var(--line); display: grid; gap: 4px; color: var(--ink-2); font-size: 13px; }
+.peek li { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.added { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 12px 14px; border-radius: 14px; background: color-mix(in oklab, var(--accent) 10%, var(--raised)); border: 1px solid color-mix(in oklab, var(--accent) 30%, transparent); }
+.added p { margin: 0; flex: 1; min-width: 12ch; }
+
+/* manual lookup */
+.manual { display: grid; gap: 6px; }
+.manual label { font-weight: 600; }
+.manual .row { display: flex; gap: 8px; }
+.manual input { flex: 1; min-width: 0; height: 36px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--raised); }
+.manual .pill { height: 36px; }
+
+/* recent */
+.recent { margin-top: auto; }
+.recent h2 { margin: 0 0 6px; font: 650 12.5px/1 var(--sans); color: var(--ink-3); }
+.recent ul { list-style: none; margin: 0; padding: 0; }
+.recent button { display: flex; align-items: center; gap: 10px; width: 100%; padding: 7px 8px; border: 0; border-radius: 10px; background: none; text-align: left; }
+.recent button:hover { background: var(--hover); }
+.recent .dot { --h: 250; width: 4px; height: 16px; border-radius: 3px; background: oklch(var(--src-l) var(--src-c) var(--h)); flex: none; }
+.recent .name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.recent .count { font-variant-numeric: tabular-nums; color: var(--ink-3); font-weight: 600; font-size: 12.5px; }
+
+.cand .tag { color: var(--accent); font-weight: 550; }

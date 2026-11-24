@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vangmayam</title>
+  <link rel="icon" href="icons/48.png">
+  <link rel="stylesheet" href="base.css">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div id="shell" data-open="false">
+
+  <nav class="rail" id="rail" aria-label="Library">
+    <div class="rail-top"><h1 class="mark">vangmayam</h1></div>
+
+    <div class="nav" id="nav">
+      <button type="button" data-nav="brief"><span data-icon="sparkles"></span>Brief</button>
+      <button type="button" data-nav="unread"><span data-icon="inbox"></span>Unread<span class="n" id="n-unread"></span></button>
+      <button type="button" data-nav="all"><span data-icon="layers"></span>All articles</button>
+      <button type="button" data-nav="starred"><span data-icon="bookmark"></span>Saved</button>
+      <button type="button" id="btn-packs"><span data-icon="compass"></span>Starter packs</button>
+    </div>
+
+    <div class="rail-head">
+      <h2>Sources</h2>
+      <button id="btn-add" class="icon sm" data-icon="plus" title="Follow a source" aria-label="Follow a source"></button>
+    </div>
+    <div class="rail-filter" id="rail-filter">
+      <input id="src-filter" type="search" placeholder="Search sources" aria-label="Search your sources" autocomplete="off" spellcheck="false">
+    </div>
+    <ul id="sources" class="sources"></ul>
+
+    <div class="rail-foot">
+      <button id="btn-refresh" type="button" class="rail-btn"><span data-icon="refresh"></span>Refresh</button>
+      <button id="btn-settings" type="button" class="rail-btn"><span data-icon="sliders"></span>Settings</button>
+    </div>
+  </nav>
+  <div class="scrim" id="scrim"></div>
+
+  <section class="col-list" aria-label="Articles">
+    <header class="list-head">
+      <button id="btn-menu" class="icon only-narrow" data-icon="menu" title="Open library" aria-label="Open library"></button>
+      <h2 id="list-title">Unread</h2>
+      <span class="grow"></span>
+      <button id="btn-readall" class="icon" data-icon="checkall" title="Mark all as read" aria-label="Mark all as read"></button>
+    </header>
+    <div class="search">
+      <input id="q" type="search" placeholder="Search articles (/)" aria-label="Search articles" autocomplete="off" spellcheck="false">
+    </div>
+    <div class="banner" id="banner" hidden>
+      <p><b>Your sources are ready.</b> Allow Vangmayam to read them and their posts start loading.</p>
+      <button class="pill primary" type="button" data-act="allow">Allow and load</button>
+    </div>
+    <div class="scroll" id="scroll">
+      <ol id="list" class="list"></ol>
+      <div id="empty" class="empty" hidden></div>
+    </div>
+  </section>
+
+  <section class="col-pane" id="pane" aria-label="Reading pane">
+    <div class="home" id="home">
+      <div class="home-inner">
+        <div id="home-main">
+          <p class="home-date" id="home-date"></p>
+          <h2 class="home-title">Your brief</h2>
+          <section class="brief hero" id="brief" data-live="false" aria-live="polite">
+            <div class="brief-head">
+              <span class="brief-when" id="brief-when">A short read on what is new across your sources.</span>
+              <button id="brief-go" class="pill primary" type="button"><span data-icon="sparkles"></span><span id="brief-go-label">Write brief</span></button>
+            </div>
+            <div id="brief-out" class="out"></div>
+          </section>
+          <p class="hint-line" id="brief-hint">Each number in the brief opens the article it came from.</p>
+        </div>
+        <div id="home-empty" hidden>
+          <h2 class="home-title">Follow your first source</h2>
+          <p class="lead">Paste a site, YouTube channel or subreddit and its posts land here in one timeline.</p>
+          <p><button class="pill primary" type="button" data-act="add">Follow a source</button></p>
+          <p class="hint-line">Browsing a site you like? Press Alt+Shift+F or right-click the page and choose Follow this site in Vangmayam. The side panel finds its feed and adds it in one click.</p>
+        </div>
+      </div>
+    </div>
+
+    <article class="reader" id="reader" hidden>
+      <div class="r-bar">
+        <button id="r-back" class="icon only-narrow" data-icon="back" title="Back (Esc)" aria-label="Back to list"></button>
+        <div class="grp only-wide">
+          <button id="t-rail" class="icon" data-icon="panel" title="Hide library ( [ )" aria-label="Hide library" aria-pressed="false"></button>
+          <button id="t-list" class="icon" data-icon="list" title="Hide article list ( ] )" aria-label="Hide article list" aria-pressed="false"></button>
+          <button id="t-focus" class="icon" data-icon="maximize" title="Read full window (f)" aria-label="Read full window" aria-pressed="false"></button>
+        </div>
+        <span class="grow"></span>
+        <div class="grp">
+          <button id="t-measure" class="icon" data-icon="width" title="Reading width: wide" aria-label="Change reading width"></button>
+          <button id="t-smaller" class="icon txt" title="Smaller text" aria-label="Smaller text">A−</button>
+          <button id="t-larger" class="icon txt" title="Larger text" aria-label="Larger text">A+</button>
+        </div>
+        <span class="sep" aria-hidden="true"></span>
+        <div class="grp">
+          <button id="r-listen" class="icon" data-icon="headphones" title="Listen" aria-label="Listen to this article" aria-pressed="false"></button>
+          <button id="r-star" class="icon" data-icon="bookmark" title="Save (s)" aria-label="Save" aria-pressed="false"></button>
+          <button id="r-unread" class="icon" data-icon="dot" title="Mark as unread (m)" aria-label="Mark as unread"></button>
+          <button id="r-hide" class="icon" data-icon="eyeoff" title="Not interested (x)" aria-label="Not interested"></button>
+          <a id="r-open" class="icon" data-icon="external" target="_blank" rel="noopener noreferrer" title="Open original" aria-label="Open original"></a>
+        </div>
+      </div>
+      <div class="r-scroll" id="r-scroll">
+        <div class="r-main" id="r-main">
+          <p class="r-src" id="r-src"></p>
+          <h2 class="r-title" id="r-title"></h2>
+          <p class="r-meta" id="r-meta"></p>
+
+          <section class="brief inline" id="r-sum" data-live="false" aria-live="polite">
+            <div class="brief-head">
+              <h3>Summary</h3>
+              <button id="r-sum-go" class="pill" type="button"><span data-icon="sparkles"></span><span id="r-sum-label">Summarize</span></button>
+            </div>
+            <div id="r-sum-out" class="out"></div>
+          </section>
+
+          <div class="status" id="r-status" role="status"></div>
+          <div class="prose" id="r-content"></div>
+          <div id="r-chat" class="chat" aria-live="polite"></div>
+        </div>
+      </div>
+      <form id="r-ask" class="ask" autocomplete="off">
+        <input id="r-q" type="text" placeholder="Ask about this article" aria-label="Ask about this article">
+        <button class="icon" type="submit" data-icon="send" aria-label="Send question"></button>
+      </form>
+    </article>
+  </section>
+</div>
+
+<dialog id="dlg-add">
+  <form id="form-add" class="dlg">
+    <h2>Follow a source</h2>
+    <p class="hint">Paste a website, YouTube channel, subreddit or feed link.</p>
+    <div class="row">
+      <input id="add-input" type="text" placeholder="example.com, @channel or r/subreddit" aria-label="Website, channel or subreddit" autocomplete="off" spellcheck="false">
+      <button type="submit" class="pill primary" id="add-find">Find feeds</button>
+    </div>
+    <p id="add-msg" class="msg" role="status"></p>
+    <ul id="add-results" class="results"></ul>
+    <div class="foot">
+      <button type="button" class="ghost" data-close>Cancel</button>
+      <button type="button" class="pill primary" id="add-follow" disabled>Follow</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dlg-packs" class="wide">
+  <div class="dlg">
+    <h2>Starter packs</h2>
+    <p class="hint">Sources are saved on this device. Tick a source to follow it, clear it to remove it.</p>
+    <input id="packs-q" class="packs-q" type="search" placeholder="Search sources and packs" aria-label="Search sources and packs" autocomplete="off" spellcheck="false">
+    <div id="packs-body" class="packs"></div>
+    <div class="foot"><button type="button" class="pill primary" data-close>Done</button></div>
+  </div>
+</dialog>
+
+<dialog id="dlg-settings">
+  <form id="form-settings" class="dlg">
+    <h2>Settings</h2>
+
+    <h3>AI</h3>
+    <label>Provider
+      <select name="provider">
+        <option value="ollama">Ollama (runs on your computer)</option>
+        <option value="anthropic">Anthropic (Claude)</option>
+        <option value="openai">OpenAI</option>
+        <option value="chrome">Chrome on-device (summaries only)</option>
+      </select>
+    </label>
+    <label data-for="ollama">Ollama address
+      <input name="ollamaUrl" type="text" spellcheck="false" placeholder="http://localhost:11434">
+    </label>
+    <label data-for="ollama">Model
+      <span class="row">
+        <input name="ollamaModel" type="text" list="ollama-models" spellcheck="false" placeholder="llama3.2:3b" autocomplete="off">
+        <button type="button" class="pill" id="ollama-detect">Detect models</button>
+      </span>
+      <datalist id="ollama-models"></datalist>
+    </label>
+    <label data-for="ollama">Context window
+      <select name="ollamaCtx">
+        <option value="4096">4,096 tokens (small models)</option>
+        <option value="8192">8,192 tokens</option>
+        <option value="16384">16,384 tokens</option>
+        <option value="32768">32,768 tokens (needs more memory)</option>
+      </select>
+    </label>
+    <p class="msg" id="ollama-msg" role="status" data-for="ollama"></p>
+    <p class="hint" data-for="ollama">Summaries, the brief and Ask about this article all run on this model. Nothing leaves your computer. Pull a model first, for example <code>ollama pull llama3.2</code>.</p>
+    <label data-for="anthropic">Anthropic API key
+      <input name="anthropicKey" type="password" autocomplete="off" spellcheck="false" placeholder="sk-ant-…">
+    </label>
+    <label data-for="anthropic">Model
+      <input name="anthropicModel" type="text" spellcheck="false">
+    </label>
+    <label data-for="openai">OpenAI API key
+      <input name="openaiKey" type="password" autocomplete="off" spellcheck="false" placeholder="sk-…">
+    </label>
+    <label data-for="openai">Model
+      <input name="openaiModel" type="text" spellcheck="false">
+    </label>
+    <label>Write AI answers in
+      <input name="language" type="text" placeholder="English">
+    </label>
+
+    <h3>Reading</h3>
+    <div class="two">
+      <label>Check for news every
+        <select name="refreshMinutes">
+          <option value="10">10 minutes</option><option value="20">20 minutes</option>
+          <option value="30">30 minutes</option><option value="60">1 hour</option>
+        </select>
+      </label>
+      <label>Delete unsaved articles after
+        <select name="retentionDays">
+          <option value="14">2 weeks</option><option value="28">4 weeks</option>
+          <option value="60">2 months</option><option value="90">3 months</option>
+          <option value="0">Never</option>
+        </select>
+      </label>
+    </div>
+    <p class="hint">Saved articles are never deleted.</p>
+    <label>Hide articles that mention
+      <input name="mutedWords" type="text" spellcheck="false" placeholder="crypto, web3, giveaway">
+    </label>
+    <p class="hint">Separate words with commas. Whole words only, any capitalization.</p>
+    <div class="row">
+      <button type="button" class="pill" id="show-hidden">Show hidden articles again</button>
+    </div>
+
+    <h3>Move your sources</h3>
+    <div class="row">
+      <button type="button" class="pill" id="opml-in">Import OPML</button>
+      <button type="button" class="pill" id="opml-out">Export OPML</button>
+    </div>
+    <p class="hint">Keys stay in this browser and go only to the provider you pick.</p>
+    <div class="foot">
+      <button type="button" class="ghost" data-close>Cancel</button>
+      <button type="submit" class="pill primary">Save settings</button>
+    </div>
+  </form>
+</dialog>
+<input id="opml-file" type="file" accept=".opml,.xml,text/xml" hidden>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<script type="module" src="app.js"></script>
+</body>
+</html>

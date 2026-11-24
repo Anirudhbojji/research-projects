@@ -1,0 +1,190 @@
+@property --spin { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+
+:root {
+  color-scheme: light dark;
+  --paper: #F1F3F2;
+  --raised: #FBFCFB;
+  --ink: #16191C;
+  --ink-2: #4B535B;
+  --ink-3: #636C74;
+  --accent: #2F4FE0;
+  --accent-ink: #FFFFFF;
+  --line: color-mix(in oklab, var(--ink) 12%, transparent);
+  --hover: color-mix(in oklab, var(--ink) 5.5%, transparent);
+  --src-l: .58;
+  --src-c: .15;
+  --serif: Charter, 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', Georgia, serif;
+  --sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --ease: cubic-bezier(.2, .8, .2, 1);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #14171A;
+    --raised: #1C2024;
+    --ink: #E9ECEE;
+    --ink-2: #AEB6BD;
+    --ink-3: #8B949C;
+    --accent: #8FA3FF;
+    --accent-ink: #0E1220;
+    --src-l: .76;
+    --src-c: .13;
+  }
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0; background: var(--paper); color: var(--ink);
+  font: 14px/1.45 var(--sans); -webkit-font-smoothing: antialiased;
+}
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+[hidden] { display: none !important; }
+.grow { flex: 1; }
+
+.mark { margin: 0; display: flex; align-items: center; gap: 9px; font: 600 21px/1 var(--serif); letter-spacing: -.03em; }
+.mark::before {
+  content: ''; width: 15px; height: 17px;
+  background: linear-gradient(90deg,
+    oklch(.7 .15 250) 0 3px, transparent 3px 6px,
+    oklch(.78 .14 170) 6px 9px, transparent 9px 12px,
+    oklch(.74 .16 25) 12px 15px);
+}
+
+.icon {
+  display: inline-grid; place-items: center; width: 34px; height: 34px; border: 0; border-radius: 10px; flex: none;
+  background: transparent; color: var(--ink-2); text-decoration: none; transition: background .15s, color .15s;
+}
+.icon.sm { width: 28px; height: 28px; border-radius: 8px; }
+.icon:hover { background: var(--hover); color: var(--ink); }
+.icon[aria-pressed="true"] { color: var(--accent); }
+#r-star[aria-pressed="true"] svg { fill: currentColor; }
+.icon.spin svg { animation: rot .9s linear infinite; }
+@keyframes rot { to { transform: rotate(360deg); } }
+
+.pill {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 32px; padding: 0 14px; border-radius: 999px;
+  border: 1px solid var(--line); background: var(--paper); font-weight: 550; white-space: nowrap; text-decoration: none; color: var(--ink);
+  transition: background .15s, transform .15s var(--ease);
+}
+.pill:hover { background: var(--hover); }
+.pill:active { transform: scale(.97); }
+.pill.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+.pill.primary:hover { background: color-mix(in oklab, var(--accent) 88%, var(--ink)); }
+.pill:disabled { opacity: .5; cursor: not-allowed; }
+.pill [data-icon] { display: inline-flex; }
+.ghost { border: 0; background: none; padding: 0 12px; height: 32px; border-radius: 999px; color: var(--ink-2); }
+.ghost:hover { background: var(--hover); }
+.link { justify-self: start; border: 0; background: none; padding: 0; color: var(--accent); text-underline-offset: 2px; text-decoration: underline; }
+
+/* ---------- AI surfaces: the one bold moment ---------- */
+.brief {
+  position: relative; padding: 14px 16px; border-radius: 16px; background: var(--raised); border: 1px solid var(--line);
+}
+.brief::before {
+  content: ''; position: absolute; inset: -1px; border-radius: inherit; padding: 2px; pointer-events: none;
+  background: conic-gradient(from var(--spin),
+    oklch(.75 .16 255), oklch(.82 .15 195), oklch(.86 .14 105), oklch(.76 .18 335), oklch(.75 .16 255));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  opacity: 0; transition: opacity .5s;
+}
+.brief[data-live="true"]::before { opacity: 1; animation: spin 3.2s linear infinite; }
+@keyframes spin { to { --spin: 360deg; } }
+.brief-head { display: flex; align-items: center; gap: 10px; }
+.brief-head h3 { margin: 0; font: 600 16px/1.2 var(--serif); letter-spacing: -.01em; margin-right: auto; }
+.brief-when { color: var(--ink-3); font-size: 12.5px; margin-right: auto; }
+.brief .out:not(:empty) { margin-top: 10px; }
+.out { font: 15px/1.55 var(--serif); text-wrap: pretty; }
+.out p { margin: 0 0 .7em; }
+.out ul { margin: 0 0 .7em; padding-left: 1.2em; }
+.out li { margin-bottom: .3em; }
+.out strong { font-weight: 650; }
+.out .err { color: var(--ink-2); font: 13.5px/1.45 var(--sans); }
+.cite {
+  display: inline-grid; place-items: center; min-width: 19px; height: 19px; margin: 0 1px 0 3px; padding: 0 4px;
+  border: 0; border-radius: 6px; vertical-align: 1px; font: 600 11px/1 var(--sans); font-variant-numeric: tabular-nums;
+  background: color-mix(in oklab, var(--accent) 16%, transparent); color: var(--accent);
+}
+.cite:hover { background: color-mix(in oklab, var(--accent) 28%, transparent); }
+
+/* ---------- article typography ---------- */
+.status { color: var(--ink-3); font-size: 13px; margin: 0 0 12px; }
+.status:empty { display: none; }
+.status button { border: 0; background: none; color: var(--accent); padding: 0; text-decoration: underline; text-underline-offset: 2px; }
+.prose { font: 18px/1.7 var(--serif); text-wrap: pretty; overflow-wrap: anywhere; }
+.prose > :first-child { margin-top: 0; }
+.prose p { margin: 0 0 1.05em; }
+.prose h1, .prose h2, .prose h3, .prose h4 { font: 650 1.2em/1.25 var(--serif); margin: 1.6em 0 .5em; letter-spacing: -.01em; }
+.prose a { color: var(--accent); text-underline-offset: 2px; }
+.prose img, .prose video { max-width: 100%; height: auto; border-radius: 10px; display: block; margin: 1.2em 0; }
+.prose audio { width: 100%; margin: 1em 0; }
+.prose figure { margin: 1.2em 0; }
+.prose figcaption { font: 13px/1.4 var(--sans); color: var(--ink-3); margin-top: -.6em; }
+.prose blockquote { margin: 1.2em 0; padding: 0 0 0 16px; border-left: 3px solid var(--line); color: var(--ink-2); }
+.prose pre { overflow-x: auto; padding: 12px 14px; border-radius: 10px; background: var(--paper); border: 1px solid var(--line); font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; }
+.prose code { font: .86em ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--hover); padding: .1em .35em; border-radius: 5px; }
+.prose pre code { background: none; padding: 0; }
+.prose table { display: block; overflow-x: auto; border-collapse: collapse; font: 14px/1.4 var(--sans); }
+.prose td, .prose th { border: 1px solid var(--line); padding: 6px 10px; }
+
+/* ---------- dialogs and toast ---------- */
+dialog {
+  width: min(92vw, 440px); padding: 0; border: 0; border-radius: 20px; background: var(--raised); color: var(--ink);
+  box-shadow: 0 24px 70px rgb(0 0 0 / .32), 0 0 0 1px var(--line);
+  opacity: 0; translate: 0 14px;
+  transition: opacity .22s, translate .3s var(--ease), overlay .3s allow-discrete, display .3s allow-discrete;
+}
+dialog[open] { opacity: 1; translate: 0 0; }
+@starting-style { dialog[open] { opacity: 0; translate: 0 14px; } }
+dialog::backdrop {
+  background: color-mix(in oklab, var(--paper) 45%, transparent); backdrop-filter: blur(8px); opacity: 0;
+  transition: opacity .22s, overlay .3s allow-discrete, display .3s allow-discrete;
+}
+dialog[open]::backdrop { opacity: 1; }
+@starting-style { dialog[open]::backdrop { opacity: 0; } }
+.dlg { display: grid; gap: 12px; padding: 22px; }
+.dlg h2 { margin: 0; font: 600 21px/1.2 var(--serif); letter-spacing: -.015em; }
+.dlg h3 { margin: 6px 0 0; font: 650 14px/1.2 var(--sans); }
+.hint { margin: 0; color: var(--ink-3); font-size: 12.5px; }
+.dlg label { display: grid; gap: 5px; font-weight: 550; }
+.dlg input, .dlg select { height: 38px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--paper); font-weight: 400; }
+.dlg .row { display: flex; gap: 8px; }
+.dlg .row input { flex: 1; min-width: 0; }
+.dlg .row .pill { height: 38px; }
+.dlg .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.dlg .foot { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+.msg { margin: 0; color: var(--ink-2); font-size: 13px; }
+.msg:empty { display: none; }
+.results { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; max-height: 38vh; overflow: auto; }
+.results label {
+  display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: start; padding: 10px 12px; border-radius: 12px;
+  border: 1px solid var(--line); background: var(--paper); font-weight: 400; cursor: pointer;
+}
+.results label:has(input:checked) { border-color: var(--accent); background: color-mix(in oklab, var(--accent) 8%, var(--paper)); }
+.results input { height: auto; margin-top: 3px; accent-color: var(--accent); }
+.results b { display: block; font-weight: 650; }
+.results small { display: block; color: var(--ink-3); overflow-wrap: anywhere; }
+
+.toast {
+  position: fixed; left: 50%; bottom: 22px; z-index: 60; translate: -50% 0; max-width: 88vw;
+  padding: 10px 18px; border-radius: 999px; background: var(--ink); color: var(--paper); font-weight: 550;
+  opacity: 0; pointer-events: none; transform: translateY(8px); transition: opacity .2s, transform .3s var(--ease);
+}
+.toast.show { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+  .brief[data-live="true"]::before { animation: none; }
+}
+
+/* long dialogs scroll inside the viewport */
+.dlg { max-height: min(90vh, 900px); overflow-y: auto; }
+.dlg h3 { margin: 10px 0 0; font: 650 13px/1.2 var(--sans); color: var(--ink-3); }
+.dlg code { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--hover); padding: .1em .35em; border-radius: 5px; }
+.dlg label .row { display: flex; gap: 8px; }
+.dlg label .row input { flex: 1; min-width: 0; }
+.toast .toast-act { margin-left: 14px; border: 0; background: none; color: var(--accent-ink); font-weight: 700; text-decoration: underline; text-underline-offset: 2px; padding: 0; }
+.toast.show.has-act { pointer-events: auto; }
+.ago { color: var(--ink-3); font-weight: 450; }
